@@ -1,0 +1,39 @@
+create table Player(
+   PlayerID INT NOT NULL AUTO_INCREMENT,
+   first_name CHAR(25) NOT NULL,
+   last_name CHAR(20) NOT NULL,
+   nationality CHAR(20) NOT NULL,
+	 position (CHAR 5) NOT NULL,
+   PRIMARY KEY (PlayerID)
+);
+
+create table Club(
+   club_name CHAR(25) NOT NULL,
+   nation CHAR(20) NOT NULL,
+   city CHAR(20) NOT NULL,
+   PRIMARY KEY (club_name)
+);
+
+create table League(
+   leagueID INT NOT NULL AUTO_INCREMENT,
+   league_name CHAR(25) NOT NULL,
+   nation CHAR(25) NOT NULL,
+   PRIMARY KEY (leagueID)
+);
+
+create table Manager(
+   managerID INT NOT NULL AUTO_INCREMENT,
+   first_name CHAR(25) NOT NULL,
+   last_name CHAR(25) NOT NULL,
+	 nationality CHAR(25)
+   PRIMARY KEY (managerID)
+);
+
+create table Match(
+   match_id INT NOT NULL AUTO_INCREMENT,
+   date DATE,
+   start_time TIMESTAMP NOT NULL,
+	 end_time TIMESTAMP NOT NULL,
+	 match_city CHAR(25),
+   PRIMARY KEY (match_id)
+);
