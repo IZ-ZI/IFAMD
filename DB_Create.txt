@@ -1,7 +1,7 @@
 create table Player(
-   playerID INT NOT NULL AUTO_INCREMENT,
-   first_name CHAR(25) NOT NULL,
-   last_name CHAR(20) NOT NULL,
+   playerID INT NOT NULL,
+   short_name CHAR(25) NOT NULL,
+   long_name CHAR(50) NOT NULL,
    nationality CHAR(20) NOT NULL,
 	 position (CHAR 5) NOT NULL,
    PRIMARY KEY (PlayerID)
