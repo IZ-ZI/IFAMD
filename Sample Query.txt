@@ -1,0 +1,8 @@
+Select A.club_name FROM Participate AS A WHERE
+A.match_ID IN(SELECT B.match_ID
+FROM Participate AS B WHERE B.club_name = "FC Barcelona" AND A.club_name <> B.club_name);
+
+SELECT p.short_name, SUM(h.goal) from Player p, Has_Scored h
+WHERE h.playerID = p.playerID
+GROUP BY p.short_name
+ORDER BY SUM(h.goal) DESC;

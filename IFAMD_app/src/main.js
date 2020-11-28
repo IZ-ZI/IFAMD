@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, dialog, shell } = require('electron');
+const { app, BrowserWindow, Menu, dialog, shell, screen } = require('electron');
 const path = require('path');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -9,9 +9,13 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-		show: false,
+	const :{ width, height } = screen.getPrimaryDisplay().workAreaSize,
+    width: parseInt(width*0.55),
+    height: parseInt(height*0.65),
+	show: false,
+	fullscreenable:false,
+    fullscreen: false,
+    maximizable: false
   });
   // Open the DevTools.
   //mainWindow.webContents.openDevTools();
@@ -24,7 +28,7 @@ const createWindow = () => {
 					if (focusedWindow) {
 							const options = {
 									type: 'info',
-									title: 'INFO',
+									title: 'Info',
 									buttons: ['分かりました！'],
 									message: 'You don\'t need help.'
 							}
@@ -43,10 +47,27 @@ const createWindow = () => {
 	const menu = Menu.buildFromTemplate(template)
 	Menu.setApplicationMenu(menu)
 
-	mainWindow.loadURL(`file://${__dirname}/index.html`)
+	mainWindow.loadURL("https://www.google.com/")
+	//mainWindow.loadURL(`file://${__dirname}/index.html`)
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show()
 	})
+
+	mainWindow.on('maximize', () => {
+		mainWindow.unmaximize()
+		const disabled = {
+			type: 'info',
+			title: 'Info',
+			buttons: [':('],
+			message: 'Full Screen has been Disabled.'
+		}
+		dialog.showMessageBox(mainWindow, disabled)
+	});
+
+	mainWindow.webContents.on('new-window', function(e, url) {
+		e.preventDefault();
+		require('electron').shell.openExternal(url);
+	});
 };
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
