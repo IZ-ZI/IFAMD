@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>IFAMI</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<!-- <script src="renderer.js"></script> -->
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<style>body{overflow-y: hidden;}</style>
+    </head>
+    <body style="background-image: url(images/result.jpg);background-size: cover;">
+        <div id="wrapper">
+            <div id="inner">
+                <h3>Query Result:</h3>
+                <div class="table-wrapper">
+                    <table id='play_table'>
+                        <thead>
+                            <tr>
+                                <th>Abbreviated Name</th>
+                                <th>Full Name</th>
+                                <th>Nationality</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+		<!-- Scripts -->
+			<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+			<script src="./renderer.js"></script>
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+            <script>if (window.module) module = window.module;</script>   
+			<script>
+				const { ipcRenderer } = require('electron')
+				ipcRenderer.on('show_player', (event, arg) => {
+                    console.log(arg)
+                    // var html = ''
+
+                    // ars.array.forEach(element => {
+                    //     html += '<tr>';
+                    //     html += '<td>';
+                    //     html += element.playerID;
+                    //     html += '</td>';
+                    //     html += '<td>';
+                    //     html += element.short_name;
+                    //     html += '</td>';
+                    //     html += '<td>';
+                    //     html += element.long_name;
+                    //     html += '</td>';
+                    //     html += '<td>';
+                    //     html += element.nationality;
+                    //     html += '</td>';
+                    //     html += '<td>';
+                    //     html += element.position;
+                    //     html += '</td>';
+                    //     html += '</tr>';
+                    // });
+                    // document.querySelector('#table > tbody').innerHTML = html;
+                })
+			</script>
+	</body>
+</html>
