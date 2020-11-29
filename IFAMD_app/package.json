@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "bulma": "^0.9.1",
+    "codemirror": "^5.58.3",
     "electron-squirrel-startup": "^1.0.0",
     "fast-csv": "^4.3.5",
     "mysql": "^2.18.1"
