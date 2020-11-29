@@ -15,10 +15,10 @@ const contactDatabase = (focusedWindow) => {
 	var mysql = require('mysql')
 
 	connection = mysql.createConnection({
-		host: '**************',
+		host: '****',
 		port: '3306',
-		user: '**************',
-		password: '**************',
+		user: '****',
+		password: '****',
 		database: 'ifamd',
 		timezone: 'utc' 
 	})
