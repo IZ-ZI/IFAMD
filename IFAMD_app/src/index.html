@@ -5,6 +5,12 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="./helper/codemirror/lib/codemirror.css">	
+		<link rel="stylesheet" href="./helper/codemirror/theme/monokai.css">
+		<script src="./helper/codemirror/lib/codemirror.js"></script>
+		<script src="./helper/codemirror/mode/sql/sql.js"></script>
+		<script src="./helper/codemirror/addon/edit/closebrackets.js"></script>
+		<script src="./helper/codemirror/addon/edit.matchBrackets.js"></script>
 		<!-- <script src="renderer.js"></script> -->
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 		<style>body{overflow-x: hidden;overflow-y: hidden;}</style>
@@ -102,14 +108,13 @@
 				<div class="inner">
 					<form method="post" action="#">
 						<div class="fields">
-							<div class="field half">
+							<div class="field">
 								<label for="query_club" style="font-size:xx-large;">Custom Query</label>
-								<textarea type="text" name="cQuery" id="cQuery" rows="1" placeholder="Please Adhere to the Standard SQL syntax."
-									   style="background-image: url('images/pic02.jpg');opacity:0.7;background-repeat:no-repeat;background-size:cover"></textarea>
+								<textarea name="cQuery" id="cQuery"></textarea>
 							</div>
 						</div>
 						<ul class="actions">
-							<li><a class="button" id='user_button' style="background: linear-gradient(to right, #66ccff 0%, #6666ff 100%)"onmousedown="return false">Lookup</a></li>
+							<li><a class="button" id='user_button' style="background: linear-gradient(to bottom left, #ffcc00 0%, #ff6699 79%)"onmousedown="return false">Lookup</a></li>
 						</ul>
 					</form>
 				</div>
@@ -151,9 +156,20 @@
 				// Any lookup
 				document.getElementById('user_button').addEventListener("click", () =>
 				{
-					var query = document.getElementById('cQuery').value
+					var query = sqlEditor.getValue()
 					ipcRenderer.send('lookupGeneral', query)
 				})
+			</script>
+			<script>
+				var sqlEditor = CodeMirror.fromTextArea(document.getElementById("cQuery"),{
+					indentWithTabs: true,
+    				smartIndent: true,
+    				lineNumbers: true,
+					matchBrackets : true,
+					autoCloseBrackets: true,
+					mode: 'text/x-mysql',
+					theme: 'monokai'
+				})	
 			</script>
 	</body>
 </html>
