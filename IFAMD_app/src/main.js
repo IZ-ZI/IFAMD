@@ -3,6 +3,7 @@ const { app, BrowserWindow, Menu, dialog, shell, screen, ipcMain, systemPreferen
 const fastcsv = require("fast-csv");
 const fs = require("fs");
 const path = require('path');
+require('dotenv').config()
 
 var connection;
 
@@ -15,7 +16,12 @@ const contactDatabase = (focusedWindow) => {
 	var mysql = require('mysql')
 
 	connection = mysql.createConnection({
-		database: 'ifamd',
+		//using environmental variables for keys
+		host: process.env.host,
+		port: process.env.port,
+		user: process.env.user,
+		password: process.env.password,
+		database: process.env.database,
 		timezone: 'utc' 
 	})
 
