@@ -4,15 +4,19 @@
 		<title>IFAMI</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<link rel="stylesheet" href="./helper/codemirror/lib/codemirror.css">	
 		<link rel="stylesheet" href="./helper/codemirror/theme/monokai.css">
+
 		<script src="./helper/codemirror/lib/codemirror.js"></script>
 		<script src="./helper/codemirror/mode/sql/sql.js"></script>
 		<script src="./helper/codemirror/addon/edit/closebrackets.js"></script>
-		<script src="./helper/codemirror/addon/edit.matchBrackets.js"></script>
-		<!-- <script src="renderer.js"></script> -->
+		<script src="./helper/codemirror/addon/edit/matchbrackets.js"></script>
+
+		<script defer src="mainRenderer.js"></script>
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+
 		<style>body{overflow-x: hidden;overflow-y: hidden;}</style>
 	</head>
 	<body class="is-preload">
@@ -26,7 +30,7 @@
 							<li><a href="#one">Search by Player</a></li> <!--name, club, nationality, position, goals-->
 							<li><a href="#two">Search by Club</a></li> <!--Manager, clubname, nation, city, (num of wins)-->
 							<li><a href="#three">Search by Date</a></li> <!--match on that day, playing teams, start time, score-->
-							<li><a href="#four">Submit a Custom Query</a></li>
+							<li><a href="#four">Submit a Custom Query</a></li> <!-- Cutom Query-->
 						</ul>
 					</nav>
 				</div>
@@ -55,7 +59,7 @@
 									<div class="field half">
 										<label for="query_player" style="font-size:xx-large;">Query by Player Name</label>
 										<input type="text" name="player_name" id="player_name" rows="1"
-											style="background-image: url('images/pic02.jpg');opacity:0.7;background-repeat:no-repeat;background-size:cover;text-align:center"></input>
+											style="background-image: url('images/fill.jpg');opacity:0.7;background-repeat:no-repeat;background-size:cover;text-align:center"></input>
 									</div>
 								</div>
 								<ul class="actions">
@@ -73,7 +77,7 @@
 									<div class="field half">
 										<label for="query_club" style="font-size:xx-large;">Query by Club Name</label>
 										<input type="text" name="club_name" id="club_name" rows="1"
-											   style="background-image: url('images/pic02.jpg');opacity:0.7;background-repeat:no-repeat;background-size:cover;text-align:center"></input>
+											   style="background-image: url('images/fill.jpg');opacity:0.7;background-repeat:no-repeat;background-size:cover;text-align:center"></input>
 									</div>
 								</div>
 								<ul class="actions">
@@ -84,24 +88,22 @@
 					</section>
 
 				<!-- Date -->
-					<section id="three" class="wrapper style3 fullscreen fade-up" style="background-image:url('images/soccer.jpg');background-attachment:fixed;background-repeat:no-repeat;background-size:cover;">
-						<div class="inner">
-							<form method="post" action="#">
-								<div class="fields">
-									<div class="field half">
-										<label for="query_date" style="font-size:xx-large;">Query by Date</label>
-										<input type="date" name="date" id="date" rows="1"
-											   style="background-image: url('images/pic02.jpg');opacity:0.7;background-repeat:no-repeat;background-size:cover;text-align:center"></input>
-									</div>
-								</div>
-								<ul class="actions">
-									<li><a class="button" id='date_button' style="background: linear-gradient(to right, #66ccff 0%, #6666ff 100%)"onmousedown="return false">Lookup</a></li>
-								</ul>
-							</form>
+			<section id="three" class="wrapper style3 fullscreen fade-up" style="background-image:url('images/soccer.jpg');background-attachment:fixed;background-repeat:no-repeat;background-size:cover;">
+				<div class="inner">
+					<form method="post" action="#">
+						<div class="fields">
+							<div class="field half">
+								<label for="query_date" style="font-size:xx-large;">Query by Date</label>
+								<input type="date" name="date" id="date" rows="1"
+										style="background-image: url('images/fill.jpg');opacity:0.7;background-repeat:no-repeat;background-size:cover;text-align:center"></input>
+							</div>
 						</div>
-					</section>
-
-			</div>
+						<ul class="actions">
+							<li><a class="button" id='date_button' style="background: linear-gradient(to right, #66ccff 0%, #6666ff 100%)"onmousedown="return false">Lookup</a></li>
+						</ul>
+					</form>
+				</div>
+			</section>
 
 			<!-- General -->
 			<section id="four" class="wrapper style3 fullscreen fade-up" style="background-image:url('images/mysql.jpg');background-attachment:fixed;background-repeat:no-repeat;background-size:cover;">
@@ -119,12 +121,11 @@
 					</form>
 				</div>
 			</section>
-
+		</div>
 	</div>
 
 		<!-- Scripts -->
 			<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
-			<script src="./renderer.js"></script>
 			<script src="assets/js/jquery.min.js"></script>
 			<script src="assets/js/jquery.scrollex.min.js"></script>
 			<script src="assets/js/jquery.scrolly.min.js"></script>
@@ -133,33 +134,7 @@
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
 			<script>if (window.module) module = window.module;</script>
-			<script>
-				const { ipcRenderer } = require('electron')
-				// player lookup
-				document.getElementById('player_button').addEventListener("click", () =>
-				{
-					var playerName = document.getElementById('player_name').value
-					ipcRenderer.send('lookupPlayer', playerName)
-				})
-				// club lookup
-				document.getElementById('club_button').addEventListener("click", () =>
-				{
-					var clubName = document.getElementById('club_name').value
-					ipcRenderer.send('lookupClub', clubName)
-				})
-				// date lookup
-				document.getElementById('date_button').addEventListener("click", () =>
-				{
-					var date = document.getElementById('date').value
-					ipcRenderer.send('lookupDate', date)
-				})
-				// Any lookup
-				document.getElementById('user_button').addEventListener("click", () =>
-				{
-					var query = sqlEditor.getValue()
-					ipcRenderer.send('lookupGeneral', query)
-				})
-			</script>
+			//embeded sql editor
 			<script>
 				var sqlEditor = CodeMirror.fromTextArea(document.getElementById("cQuery"),{
 					indentWithTabs: true,

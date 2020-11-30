@@ -3138,20 +3138,18 @@ input, select, textarea {
 	}
 
 		table tbody tr {
-			border: solid 1px rgba(255, 255, 255, 0.15);
+			border: solid 2px rgba(255, 255, 255, 0.25);
 			border-left: 0;
 			border-right: 0;
 		}
 
-			table tbody tr:nth-child(2n + 1) {
-				background-color: rgba(255, 255, 255, 0.05);
-			}
-
 		table td {
+			color: #ffffffb0;
 			padding: 0.75em 0.75em;
 		}
 
 		table th {
+			background-color: #625d6d8a;
 			color: #ffffff;
 			font-size: 1em;
 			font-weight: bold;
@@ -3364,7 +3362,7 @@ input, select, textarea {
 		display: -webkit-flex;
 		display: -ms-flex;
 		display: flex;
-		background-color: #5e42a6;
+		background-color: #625d6d8a;
 		cursor: default;
 		padding: 1.75em 2em;
 	}
@@ -3403,7 +3401,7 @@ input, select, textarea {
 
 					#header > nav > ul > li a {
 						border: 0;
-						color: rgba(255, 255, 255, 0.35);
+						color: rgba(255, 255, 255, 0.45);
 						display: inline-block;
 						font-size: 0.6em;
 						font-weight: bold;
@@ -3412,7 +3410,7 @@ input, select, textarea {
 					}
 
 						#header > nav > ul > li a:hover {
-							color: rgba(255, 255, 255, 0.55);
+							color: rgba(255, 255, 255, 0.75);
 						}
 
 						#header > nav > ul > li a.active {

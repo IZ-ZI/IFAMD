@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Query Result</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<script defer src="childRenderer.js"></script>
+    </head>
+	<body style="background-image: url(images/result.jpg);background-size: cover;">
+		<header id="header" onmousedown="return false">
+			<a class="title">Query Result</a>
+			<nav>
+				<ul>
+					<li><a id='close-table'>Close Window</a></li>
+					<li><a id='save-table'>Save to Local</a></li>
+				</ul>
+			</nav>
+		</header>
+        <div id="wrapper">
+            <div id="inner">
+                <div class="table-wrapper" id='table_here'>
+					<!-- We'll inject the table here once it's ready. The injection is done in childRenderer.js -->
+                </div>
+            </div>
+        </div>
+
+		<!-- Scripts -->
+			<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+            <script>if (window.module) module = window.module;</script>
+	</body>
+</html>

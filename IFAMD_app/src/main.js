@@ -1,5 +1,5 @@
 const { AsyncResource } = require('async_hooks');
-const { app, BrowserWindow, Menu, dialog, shell, screen, ipcMain} = require('electron');
+const { app, BrowserWindow, Menu, dialog, shell, screen, ipcMain, systemPreferences} = require('electron');
 const fastcsv = require("fast-csv");
 const fs = require("fs");
 const path = require('path');
@@ -58,7 +58,7 @@ const createWindow = () => {
 								const options = {
 										type: 'info',
 										title: 'Info',
-										buttons: ['分かりました！'],
+										buttons: ['OK'],
 										message: 'You don\'t need help.'
 								}
 								dialog.showMessageBox(mainWindow, options)
@@ -88,7 +88,7 @@ const createWindow = () => {
 					}
 				},
 				{label: 'Retry Connection',
-				 click: function(){contactDatabase(mainWindow)}
+				 click: function(){contactDatabase(mainWindow)} //This function kinda incomplete right now, because it doesn't tell you if the attempt is successful or not.
 				}
 
 			]
@@ -104,6 +104,7 @@ const createWindow = () => {
 		mainWindow.show()
 	})
 
+	//to avoid background sizing issues, full-screen function has been disabled.
 	mainWindow.on('maximize', () => {
 		mainWindow.unmaximize()
 		const disabled = {
@@ -136,6 +137,7 @@ app.on('window-all-closed', () => {
   }
 });
 
+
 app.on('activate', () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
@@ -144,10 +146,19 @@ app.on('activate', () => {
   }
 });
 
+// event triggers
+
 ipcMain.on('lookupPlayer', (event, arg) => {
 	if (arg.length === 0){dialog.showErrorBox('Empty Field','Please complete the query.')}
 	else{
-		$findPlayer = "SELECT * FROM Player WHERE Player.short_name = '" + arg + "';"
+		$findPlayer = "SELECT" + 
+		"(SELECT P.short_name FROM Player AS P WHERE (P.short_name = '" + arg + "' OR P.long_name = '" + arg + "')) AS 'Abbreviated Name'," +
+		"(SELECT P.long_name FROM Player AS P WHERE (P.short_name = '" + arg + "' OR P.long_name = '" + arg + "')) AS 'Full Name'," +
+		"(SELECT P.nationality FROM Player AS P WHERE (P.short_name = '" + arg + "' OR P.long_name = '" + arg + "')) AS 'Nationality'," + 
+		"(SELECT P.position FROM Player AS P WHERE (P.short_name = '" + arg + "' OR P.long_name = '" + arg + "')) AS 'Position'," +
+		"(SELECT C.club_name FROM Player AS P, Club AS C, Contract AS CO WHERE (P.short_name = '" + arg + "' OR P.long_name = '" + arg + "' ) AND (P.playerID = CO.playerID) AND (CO.club_name = C.club_name)) AS 'Club'," +
+		"(SELECT IFNULL(SUM(HS.goal),0) AS 'Total Goals' FROM Player AS P, Has_Scored AS HS WHERE (P.short_name = '" + arg + "' OR P.long_name = '" + arg + "') AND " + 
+		"P.playerID = HS.playerID) AS 'Total Goals'"
 		submitQuery($findPlayer)
 	}
 })
@@ -155,7 +166,7 @@ ipcMain.on('lookupPlayer', (event, arg) => {
 ipcMain.on('lookupClub', (event, arg) => {
 	if (arg.length === 0){dialog.showErrorBox('Empty Field','Please complete the query.')}
 	else{
-		$findClub = "SELECT * FROM Club WHERE Club.club_Name = '" + arg + "';"
+		$findClub = "SELECT C.*, CONCAT_WS(' ', first_name, last_name) AS Name FROM Club AS C, Manager AS M, Manage AS MG WHERE C.club_Name = '" + arg + "' AND M.managerId = MG.managerId AND C.club_name = MG.club_name;"
 		submitQuery($findClub)
 	}
 })
@@ -171,9 +182,16 @@ ipcMain.on('lookupDate', (event, arg) => {
 ipcMain.on('lookupGeneral', (event, arg) => {
 	if (arg.length === 0){dialog.showErrorBox('Empty Field','Please complete the query.')}
 	else{
-		console.log(arg)
 		submitQuery(arg)
 	}
+})
+
+ipcMain.on('close-table-window', () => {
+	BrowserWindow.getFocusedWindow().close()
+})
+
+ipcMain.on('save-file-to-computer', (event, arg) => {
+	saveToFile(arg)
 })
 
 //submit whatever query the user entered. If nothing is returned, this function
@@ -183,10 +201,10 @@ const submitQuery = ($queryString) => {
 		if(err){
 			dialog.showErrorBox('An Error has Occurred', String(err))
 		}else{
-			const jsonData = JSON.parse(JSON.stringify(rows))
-			if(jsonData.length !== 0){
-				//console.log("jsondata", jsonData)
-				saveToFile(jsonData)
+			const json = JSON.stringify(rows)
+			const jsonData = JSON.parse(json)
+			if(jsonData.length !== 0 && !json.includes('null')){
+				viewTableWindow(jsonData)
 			}else{
 				dialog.showErrorBox("No Result", "Query did not Return Any Results.")
 			}
@@ -206,5 +224,35 @@ const saveToFile = (data) => {
 				var path = String(result.filePath)
 				fastcsv.write(data, {headers:true}).pipe(fs.createWriteStream(path))
 			}
+	})
+}
+
+// child window to display a table.
+const viewTableWindow = (tableContent) => {
+	var tableViewWindow = new BrowserWindow({
+		const :{ width, height } = screen.getPrimaryDisplay().workAreaSize,
+		width: parseInt(width * 0.25),
+		height: parseInt(height * 0.5),
+		show: false,
+		frame: false,
+		parent: BrowserWindow.getFocusedWindow(),
+		fullscreenable:false,
+		fullscreen: false,
+		maximizable: false,
+		webPreferences: {
+			nodeIntegration: true
+		}
+	})
+
+	tableViewWindow.loadURL(`file://${__dirname}/tableview.html`)
+	tableViewWindow.once('ready-to-show', () => {
+		tableViewWindow.show()
+		//when window is ready, send the data to be displayed.
+		tableViewWindow.webContents.send('display-query-result', tableContent)
+	})
+
+	//remove reference when window is closed
+	tableViewWindow.on('closed', () => {
+		tableViewWindow = null
 	})
 }
