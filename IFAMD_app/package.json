@@ -19,7 +19,9 @@
   "license": "MIT",
   "config": {
     "forge": {
-      "packagerConfig": {"icon": "src/icon/icon.ico"},
+      "packagerConfig": {
+        "icon": "src/icon/icon.ico"
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
@@ -29,7 +31,9 @@
         },
         {
           "name": "@electron-forge/maker-zip",
-          "config": {"name": "ifamd"},
+          "config": {
+            "name": "ifamd"
+          },
           "platforms": [
             "darwin"
           ]
@@ -51,7 +55,8 @@
     "dotenv": "^8.2.0",
     "electron-squirrel-startup": "^1.0.0",
     "fast-csv": "^4.3.5",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.54",

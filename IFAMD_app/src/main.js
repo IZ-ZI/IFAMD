@@ -5,7 +5,7 @@ const fetch = require("node-fetch");
 const fs = require("fs");
 const path = require('path');
 
-var connection_status;
+//http GET urls.
 let urlCheck = 'https://8twgwhdclf.execute-api.us-east-2.amazonaws.com/alpha/checkdb'
 let urlQuery = 'https://8twgwhdclf.execute-api.us-east-2.amazonaws.com/alpha/querydb?queryString='
 
@@ -16,6 +16,7 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
   app.quit();
 }
 
+//this function is invoked whenever the user clicks "connection status" from the menu dropdown.
 const contactDatabase = (focusedWindow) => {
 	fetch(urlCheck).then(
 		async res=> await res.json()).then(data => {
@@ -64,12 +65,13 @@ const createWindow = () => {
 					}
 				},
 				{label: 'Gimme Money',
-				 click: () => {shell.openExternal('https://www.paypal.com/us/home')}},
+				 click: () => {shell.openExternal('https://www.paypal.com/us/home')}}, // Just a joke :).
 				{type: 'separator'},
 				{label: 'Exit',
 				 role: 'close'}
 			]
 		},
+		// allow user to check connectivity here
 		{
 			label: 'Connection',
 			submenu: [
@@ -193,7 +195,8 @@ const submitQuery = ($queryBody) => {
 			rows = data;
 			json = JSON.stringify(rows);
 			jsonData = JSON.parse(json);
-			if(jsonData.length !== 0 && !json.includes('null')){
+
+			if(jsonData.length !== 0 && !json.includes('null') && !json.includes('Internal server error')){
 				viewTableWindow(jsonData)
 			}else{
 				dialog.showErrorBox("No Result", "Query did not Return Any Results.")
