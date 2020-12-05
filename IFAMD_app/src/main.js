@@ -1,11 +1,15 @@
 const { AsyncResource } = require('async_hooks');
 const { app, BrowserWindow, Menu, dialog, shell, screen, ipcMain, systemPreferences} = require('electron');
 const fastcsv = require("fast-csv");
+const fetch = require("node-fetch");
 const fs = require("fs");
 const path = require('path');
-require('dotenv').config()
 
-var connection;
+var connection_status;
+let urlCheck = 'https://8twgwhdclf.execute-api.us-east-2.amazonaws.com/alpha/checkdb'
+let urlQuery = 'https://8twgwhdclf.execute-api.us-east-2.amazonaws.com/alpha/querydb?queryString='
+
+process.env.NODE_ENV = 'production'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -13,37 +17,25 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 }
 
 const contactDatabase = (focusedWindow) => {
-	var mysql = require('mysql')
-
-	connection = mysql.createConnection({
-		//using environmental variables for keys
-		host: process.env.host,
-		port: process.env.port,
-		user: process.env.user,
-		password: process.env.password,
-		database: process.env.database,
-		timezone: 'utc' 
-	})
-
-	connection.connect(function(err) {
-		if(err){
-			const failed = {
+	fetch(urlCheck).then(
+		async res=> await res.json()).then(data => {
+			const status = {
 				type: 'info',
-				title: 'Connection Error',
+				title: 'Connection Status',
 				buttons: ['OK'],
-				message: 'An Error Occurred When Trying to Contact Database:\n' + err.code
-			}
-			dialog.showMessageBox(focusedWindow, failed);
-		}
-	})
+				message: 'Connection Status: ' + JSON.parse(JSON.stringify(data))
+			};
+			dialog.showMessageBox(focusedWindow, status)
+		}).catch(e=>console.error('Error: ' + e));
 }
 
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
 	const :{ width, height } = screen.getPrimaryDisplay().workAreaSize,
-    width: parseInt(width*0.55),
-    height: parseInt(height*0.65),
+    width: parseInt(width*0.6),
+	height: parseInt(height*0.7),
+	icon: __dirname + '/icon/icon.ico',
 	show: false,
 	fullscreenable:false,
     fullscreen: false,
@@ -65,7 +57,7 @@ const createWindow = () => {
 										type: 'info',
 										title: 'Info',
 										buttons: ['OK'],
-										message: 'You don\'t need help.'
+										message: 'IFAMD Interface Ver 1.0.0'
 								}
 								dialog.showMessageBox(mainWindow, options)
 						}
@@ -82,19 +74,10 @@ const createWindow = () => {
 			label: 'Connection',
 			submenu: [
 				{label: 'Connection Status',
-					click: function(item, focusedWindow) {
-						if (focusedWindow) {
-							const retry = {
-									type: 'info',
-									title: 'Info',
-									message: "Status: " + connection.state
-							}
-							dialog.showMessageBox(mainWindow, retry)
-						}
-					}
+					click: function(){contactDatabase(mainWindow)}
 				},
 				{label: 'Retry Connection',
-				 click: function(){contactDatabase(mainWindow)} //This function kinda incomplete right now, because it doesn't tell you if the attempt is successful or not.
+				 	click: function(){contactDatabase(mainWindow)} //This function kinda incomplete right now, because it doesn't tell you if the attempt is successful or not.
 				}
 
 			]
@@ -106,7 +89,6 @@ const createWindow = () => {
 
 	mainWindow.loadURL(`file://${__dirname}/index.html`)
 	mainWindow.once('ready-to-show', () => {
-		contactDatabase(mainWindow);
 		mainWindow.show()
 	})
 
@@ -138,7 +120,7 @@ app.on('ready', createWindow);
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-	connection.end()
+	//connection.end()
     app.quit();
   }
 });
@@ -163,7 +145,7 @@ ipcMain.on('lookupPlayer', (event, arg) => {
 		"(SELECT P.nationality FROM Player AS P WHERE (P.short_name = '" + arg + "' OR P.long_name = '" + arg + "')) AS 'Nationality'," + 
 		"(SELECT P.position FROM Player AS P WHERE (P.short_name = '" + arg + "' OR P.long_name = '" + arg + "')) AS 'Position'," +
 		"(SELECT C.club_name FROM Player AS P, Club AS C, Contract AS CO WHERE (P.short_name = '" + arg + "' OR P.long_name = '" + arg + "' ) AND (P.playerID = CO.playerID) AND (CO.club_name = C.club_name)) AS 'Club'," +
-		"(SELECT IFNULL(SUM(HS.goal),0) AS 'Total Goals' FROM Player AS P, Has_Scored AS HS WHERE (P.short_name = '" + arg + "' OR P.long_name = '" + arg + "') AND " + 
+		"(SELECT CAST(IFNULL(SUM(HS.goal),0) AS UNSIGNED) AS 'Total Goals' FROM Player AS P, Has_Scored AS HS WHERE (P.short_name = '" + arg + "' OR P.long_name = '" + arg + "') AND " + 
 		"P.playerID = HS.playerID) AS 'Total Goals'"
 		submitQuery($findPlayer)
 	}
@@ -172,7 +154,7 @@ ipcMain.on('lookupPlayer', (event, arg) => {
 ipcMain.on('lookupClub', (event, arg) => {
 	if (arg.length === 0){dialog.showErrorBox('Empty Field','Please complete the query.')}
 	else{
-		$findClub = "SELECT C.*, CONCAT_WS(' ', first_name, last_name) AS Name FROM Club AS C, Manager AS M, Manage AS MG WHERE C.club_Name = '" + arg + "' AND M.managerId = MG.managerId AND C.club_name = MG.club_name;"
+		$findClub = "SELECT C.*, CONCAT_WS(' ', first_name, last_name) AS 'Manager' FROM Club AS C, Manager AS M, Manage AS MG WHERE C.club_Name = '" + arg + "' AND M.managerId = MG.managerId AND C.club_name = MG.club_name;"
 		submitQuery($findClub)
 	}
 })
@@ -202,23 +184,24 @@ ipcMain.on('save-file-to-computer', (event, arg) => {
 
 //submit whatever query the user entered. If nothing is returned, this function
 //will throw an error box.
-const submitQuery = ($queryString) => {
-	connection.query($queryString, (err, rows, fields) => {
-		if(err){
-			dialog.showErrorBox('An Error has Occurred', String(err))
-		}else{
-			const json = JSON.stringify(rows)
-			const jsonData = JSON.parse(json)
+//the query is submitted through a REST api, such that the database is directly exposed to the client.
+const submitQuery = ($queryBody) => {
+	queryComplete = urlQuery+$queryBody
+	var rows
+	fetch(queryComplete).then(
+		async res=> await res.json()).then(data => {
+			rows = data;
+			json = JSON.stringify(rows);
+			jsonData = JSON.parse(json);
 			if(jsonData.length !== 0 && !json.includes('null')){
 				viewTableWindow(jsonData)
 			}else{
 				dialog.showErrorBox("No Result", "Query did not Return Any Results.")
 			}
-		}
-	})
+		}).catch(e=>console.error('Error: ' + e));
 }
 
-//if the user so choose to save the file, this function is invoked.
+//if the user chooses to save the file, this function is invoked.
 const saveToFile = (data) => {
 	dialog.showSaveDialog(BrowserWindow.getFocusedWindow(),{
 		filters: [{

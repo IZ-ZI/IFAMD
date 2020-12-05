@@ -19,7 +19,7 @@
   "license": "MIT",
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {"icon": "src/icon/icon.ico"},
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
@@ -29,6 +29,7 @@
         },
         {
           "name": "@electron-forge/maker-zip",
+          "config": {"name": "ifamd"},
           "platforms": [
             "darwin"
           ]
