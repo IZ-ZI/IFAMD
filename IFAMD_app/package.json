@@ -11,6 +11,12 @@
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\""
   },
+	"build": {
+	  "appId": "com.yxz1499.ifamd",
+	  "mac": {
+	    "category": "your.app.category.type"
+	  }
+	},
   "keywords": [],
   "author": {
     "name": "IZ",
@@ -24,27 +30,10 @@
       },
       "makers": [
         {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "ifamd"
-          }
-        },
-        {
           "name": "@electron-forge/maker-zip",
           "config": {
             "name": "ifamd"
-          },
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
+          }
         }
       ]
     }
@@ -64,6 +53,7 @@
     "@electron-forge/maker-rpm": "^6.0.0-beta.54",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
     "@electron-forge/maker-zip": "^6.0.0-beta.54",
-    "electron": "11.0.3"
+    "electron": "11.0.3",
+    "electron-builder": "^22.9.1"
   }
 }
